@@ -163,7 +163,14 @@ class _HomePageState extends State<HomePage>
                   StreamBuilder(
                     stream: vehicles,
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      // Add debug prints
+                      if (snapshot.hasError) {
+                        print('Error loading vehicles: ${snapshot.error}');
+                        return Center(child: Text('Error loading vehicles'));
+                      }
+                      
                       if (!snapshot.hasData) {
+                        print('No data available yet');
                         return Center(child: CircularProgressIndicator());
                       }
 

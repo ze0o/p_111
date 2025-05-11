@@ -421,6 +421,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 .limit(5)
                 .snapshots(),
         builder: (context, snapshot) {
+          print('Snapshot data: ${snapshot.data}');
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }

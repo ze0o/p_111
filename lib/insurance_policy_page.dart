@@ -39,12 +39,15 @@ class _InsurancePolicyPageState extends State<InsurancePolicyPage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // Get all approved or paid insurance requests
+      // Get all insurance requests with relevant statuses
       final querySnapshot =
           await FirebaseFirestore.instance
               .collection('insurance_requests')
               .where('userId', isEqualTo: user.uid)
-              .where('status', whereIn: ['Approved', 'Paid'])
+              .where(
+                'status',
+                whereIn: ['Pending', 'Offers', 'Approved', 'Paid'],
+              )
               .orderBy('timestamp', descending: true)
               .get();
 

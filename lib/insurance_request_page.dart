@@ -199,11 +199,11 @@ class _InsuranceRequestPageState extends State<InsuranceRequestPage> {
           .update({
             'selectedOfferType': offerType,
             'selectedOffer': amount,
-            'status': 'Offer Selected',
+            'status': 'Offers Created',
           });
 
       setState(() {
-        _existingRequestStatus = 'Offer Selected';
+        _existingRequestStatus = 'Offers Created';
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
