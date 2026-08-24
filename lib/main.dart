@@ -71,10 +71,10 @@ class AuthWrapper extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/car_logo.png',
-                      width: 120,
-                      height: 120,
+                    Icon(
+                      Icons.directions_car,
+                      size: 120,
+                      color: Colors.white,
                     ),
                     SizedBox(height: 24),
                     CircularProgressIndicator(
