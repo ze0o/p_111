@@ -2,9 +2,9 @@ import 'package:animate_do/animate_do.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'register_page.dart';
-import 'main.dart';
-import 'theme/app_theme.dart';
+import 'package:car_insurance_app/features/auth/register_page.dart';
+import 'package:car_insurance_app/app.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage>
 
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => AuthWrapper()),
+        MaterialPageRoute(builder: (context) => const AuthGate()),
         (route) => false,
       );
     } catch (e) {

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'theme/app_theme.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
 
 class InsurancePolicyPage extends StatefulWidget {
   @override
@@ -106,7 +106,7 @@ class _InsurancePolicyPageState extends State<InsurancePolicyPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading policies: $e');
+      debugPrint('Error loading policies: $e');
       setState(() {
         _isLoading = false;
       });

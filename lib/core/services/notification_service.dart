@@ -5,7 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform;
+    show debugPrint, defaultTargetPlatform, TargetPlatform;
 
 class NotificationService {
   static final FirebaseMessaging _firebaseMessaging =
@@ -13,9 +13,13 @@ class NotificationService {
   static final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
-  // Firebase Cloud Messaging server key (you would get this from Firebase console)
-  static const String _serverKey =
-      'YOUR_FCM_SERVER_KEY'; // Replace with your actual key
+  // Legacy FCM server key. Google has shut down the legacy FCM HTTP API and a
+  // server key must never ship inside a client app, so remote push sending is
+  // disabled until it is moved to a backend (e.g. a Cloud Function using the
+  // FCM HTTP v1 API). In-app notifications stored in Firestore still work.
+  static const String _serverKey = 'YOUR_FCM_SERVER_KEY';
+
+  static bool get _canSendRemotePush => _serverKey != 'YOUR_FCM_SERVER_KEY';
 
   // Channel ID for Android notifications
   static const String _channelId = 'car_insurance_channel';
@@ -136,7 +140,7 @@ class NotificationService {
       // Subscribe user to their own user ID topic for direct messaging
       await _firebaseMessaging.subscribeToTopic('user_${user.uid}');
     } catch (e) {
-      print('Error saving device token: $e');
+      debugPrint('Error saving device token: $e');
     }
   }
 
@@ -201,7 +205,7 @@ class NotificationService {
       // Also send to admin topic
       await _sendTopicNotification('admin', title, body, data);
     } catch (e) {
-      print('Error sending admin notification: $e');
+      debugPrint('Error sending admin notification: $e');
     }
   }
 
@@ -244,7 +248,7 @@ class NotificationService {
       // Also send to user's topic
       await _sendTopicNotification('user_$userId', title, body, data);
     } catch (e) {
-      print('Error sending user notification: $e');
+      debugPrint('Error sending user notification: $e');
     }
   }
 
@@ -452,7 +456,7 @@ class NotificationService {
         }
       }
     } catch (e) {
-      print('Error checking insurance expiry: $e');
+      debugPrint('Error checking insurance expiry: $e');
     }
   }
 
@@ -462,6 +466,8 @@ class NotificationService {
     String body,
     Map<String, dynamic> data,
   ) async {
+    if (!_canSendRemotePush) return;
+
     try {
       final response = await http.post(
         Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -478,13 +484,13 @@ class NotificationService {
       );
 
       if (response.statusCode != 200) {
-        print(
+        debugPrint(
           'Failed to send push notification. Status: ${response.statusCode}',
         );
-        print('Response: ${response.body}');
+        debugPrint('Response: ${response.body}');
       }
     } catch (e) {
-      print('Error sending push notification: $e');
+      debugPrint('Error sending push notification: $e');
     }
   }
 
@@ -494,6 +500,8 @@ class NotificationService {
     String body,
     Map<String, dynamic> data,
   ) async {
+    if (!_canSendRemotePush) return;
+
     try {
       final response = await http.post(
         Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -510,13 +518,13 @@ class NotificationService {
       );
 
       if (response.statusCode != 200) {
-        print(
+        debugPrint(
           'Failed to send topic notification. Status: ${response.statusCode}',
         );
-        print('Response: ${response.body}');
+        debugPrint('Response: ${response.body}');
       }
     } catch (e) {
-      print('Error sending topic notification: $e');
+      debugPrint('Error sending topic notification: $e');
     }
   }
 
@@ -560,7 +568,7 @@ class NotificationService {
         final data = jsonDecode(response.payload!);
         _navigateBasedOnNotificationType(data);
       } catch (e) {
-        print('Error parsing notification payload: $e');
+        debugPrint('Error parsing notification payload: $e');
       }
     }
   }
@@ -575,32 +583,32 @@ class NotificationService {
 
     switch (type) {
       case 'insurance_status':
-        print(
+        debugPrint(
           'Navigate to insurance details for vehicle: ${data['vehicleReg']}',
         );
         break;
       case 'claim_status':
-        print('Navigate to claim details for claim: ${data['claimId']}');
+        debugPrint('Navigate to claim details for claim: ${data['claimId']}');
         break;
       case 'expiry_reminder':
-        print(
+        debugPrint(
           'Navigate to insurance renewal for vehicle: ${data['vehicleReg']}',
         );
         break;
       case 'offers':
-        print('Navigate to insurance offers for request: ${data['requestId']}');
+        debugPrint('Navigate to insurance offers for request: ${data['requestId']}');
         break;
       case 'approval':
-        print('Navigate to payment for request: ${data['requestId']}');
+        debugPrint('Navigate to payment for request: ${data['requestId']}');
         break;
       case 'rejection':
-        print('Navigate to insurance history');
+        debugPrint('Navigate to insurance history');
         break;
       case 'payment':
-        print('Navigate to policy details for request: ${data['requestId']}');
+        debugPrint('Navigate to policy details for request: ${data['requestId']}');
         break;
       default:
-        print('Navigate to notifications list');
+        debugPrint('Navigate to notifications list');
     }
   }
 
@@ -616,7 +624,7 @@ class NotificationService {
           .doc(notificationId)
           .update({'read': true});
     } catch (e) {
-      print('Error marking notification as read: $e');
+      debugPrint('Error marking notification as read: $e');
     }
   }
 
@@ -662,7 +670,7 @@ class NotificationService {
           .doc(notificationId)
           .delete();
     } catch (e) {
-      print('Error deleting notification: $e');
+      debugPrint('Error deleting notification: $e');
     }
   }
 
@@ -686,7 +694,7 @@ class NotificationService {
 
       await batch.commit();
     } catch (e) {
-      print('Error clearing notifications: $e');
+      debugPrint('Error clearing notifications: $e');
     }
   }
 }
@@ -694,7 +702,7 @@ class NotificationService {
 // Handle background messages
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // No need to initialize Firebase here as it's already initialized in main.dart
-  print("Handling a background message: ${message.messageId}");
+  debugPrint("Handling a background message: ${message.messageId}");
 
   // You could store the notification in SharedPreferences or a local database
   // to show it when the app is opened next time

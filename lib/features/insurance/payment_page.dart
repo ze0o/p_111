@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'theme/app_theme.dart';
-import 'services/notification_service.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
+import 'package:car_insurance_app/shared/utils/input_formatters.dart';
+import 'package:car_insurance_app/core/services/notification_service.dart';
 
 class PaymentPage extends StatefulWidget {
   final String requestId;
@@ -400,60 +401,6 @@ class _PaymentPageState extends State<PaymentPage> {
           Text(value, style: TextStyle(fontWeight: FontWeight.w500)),
         ],
       ),
-    );
-  }
-}
-
-class CardNumberFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    String text = newValue.text.replaceAll(' ', '');
-    StringBuffer buffer = StringBuffer();
-
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      if ((i + 1) % 4 == 0 && i != text.length - 1) {
-        buffer.write(' ');
-      }
-    }
-
-    return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
-    );
-  }
-}
-
-class ExpiryDateFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    String text = newValue.text.replaceAll('/', '');
-    StringBuffer buffer = StringBuffer();
-
-    for (int i = 0; i < text.length; i++) {
-      buffer.write(text[i]);
-      if (i == 1 && i != text.length - 1) {
-        buffer.write('/');
-      }
-    }
-
-    return TextEditingValue(
-      text: buffer.toString(),
-      selection: TextSelection.collapsed(offset: buffer.length),
     );
   }
 }

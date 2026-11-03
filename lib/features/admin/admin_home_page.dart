@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'login_page.dart';
-import 'admin_accident_reports_page.dart';
-import 'admin_insurance_management.dart';
-import 'theme/app_theme.dart';
+import 'package:car_insurance_app/features/auth/login_page.dart';
+import 'package:car_insurance_app/features/admin/admin_accident_reports_page.dart';
+import 'package:car_insurance_app/features/admin/admin_insurance_management_page.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
 
 class AdminHomePage extends StatefulWidget {
   @override
@@ -42,7 +43,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
       return;
     }
 
-    const apiKey = 'AIzaSyBrPvKdNX28B85l9ynlecMYrHRYskFjHGc';
+    // Reuse the API key of the initialized Firebase app instead of hard-coding it.
+    final apiKey = Firebase.app().options.apiKey;
 
     final url = Uri.parse(
       'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey',
@@ -421,7 +423,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 .limit(5)
                 .snapshots(),
         builder: (context, snapshot) {
-          print('Snapshot data: ${snapshot.data}');
+          debugPrint('Snapshot data: ${snapshot.data}');
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }

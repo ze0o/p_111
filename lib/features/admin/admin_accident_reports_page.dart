@@ -2,7 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'theme/app_theme.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
 
 class AdminAccidentReportsPage extends StatefulWidget {
   @override

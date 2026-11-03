@@ -1,15 +1,13 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'theme/app_theme.dart';
-import 'services/notification_service.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
+import 'package:car_insurance_app/core/services/notification_service.dart';
+import 'package:car_insurance_app/core/services/storage_service.dart';
 
 class AccidentReportPage extends StatefulWidget {
   final String vehicleId;
@@ -77,7 +75,7 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
         });
       }
     } catch (e) {
-      print('Error loading vehicle data: $e');
+      debugPrint('Error loading vehicle data: $e');
     }
   }
 
@@ -120,7 +118,7 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
         });
       }
     } catch (e) {
-      print('Error picking images: $e');
+      debugPrint('Error picking images: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error selecting images: ${e.toString()}'),
@@ -177,9 +175,12 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
       // Calculate damage before submission
       _calculateDamage();
 
-      // For simplicity, let's skip image upload for now
-      // This will allow us to test if the rest of the form submission works
-      List<String> imageUrls = ["https://placeholder.com/image1.jpg"];
+      // Upload the accident evidence before saving the report.
+      final imageUrls = await StorageService.uploadImages(
+        _accidentImages,
+        folder: 'accident_images',
+        filePrefix: 'accident',
+      );
 
       // Save accident report to Firestore
       final reportRef = await FirebaseFirestore.instance
@@ -195,7 +196,7 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
             'damagePercentage': _damagePercentage,
             'heavyDamage': _isHeavyDamage,
             'newConsumptionRate': _newConsumptionRate,
-            'imageUrls': imageUrls, // Using placeholder for now
+            'imageUrls': imageUrls,
             'status': 'Pending',
             'timestamp': FieldValue.serverTimestamp(),
           });
@@ -219,7 +220,7 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
           {'type': 'accident', 'reportId': reportRef.id},
         );
       } catch (e) {
-        print('Error sending notification: $e');
+        debugPrint('Error sending notification: $e');
         // Continue even if notification fails
       }
 
@@ -232,7 +233,7 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
 
       Navigator.pop(context);
     } catch (e) {
-      print('Error submitting accident report: $e');
+      debugPrint('Error submitting accident report: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),
