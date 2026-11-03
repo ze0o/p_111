@@ -1,16 +1,12 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:cross_file/cross_file.dart';
-import 'theme/app_theme.dart';
+import 'package:car_insurance_app/core/services/storage_service.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
 
 class VehicleRegistrationPage extends StatefulWidget {
   @override
@@ -59,7 +55,7 @@ class _VehicleRegistrationPageState extends State<VehicleRegistrationPage> {
         });
       }
     } catch (e) {
-      print('Error picking images: $e');
+      debugPrint('Error picking images: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error picking images: ${e.toString()}'),
@@ -138,7 +134,7 @@ class _VehicleRegistrationPageState extends State<VehicleRegistrationPage> {
         }
       }
     } catch (e) {
-      print('Error checking for renewal: $e');
+      debugPrint('Error checking for renewal: $e');
       // Don't throw an exception here, just log it and continue
     }
   }
@@ -190,54 +186,16 @@ class _VehicleRegistrationPageState extends State<VehicleRegistrationPage> {
           );
         }
       } catch (e) {
-        print('Error checking for renewal: $e');
+        debugPrint('Error checking for renewal: $e');
         // Continue with registration even if renewal check fails
       }
 
       // Upload images to Firebase Storage
-      List<String> imageUrls = [];
-
-      for (var i = 0; i < _vehicleImages.length; i++) {
-        final fileName =
-            'vehicle_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('vehicle_images')
-            .child(fileName);
-
-        UploadTask uploadTask;
-
-        if (kIsWeb) {
-          // For web platform, convert File to Uint8List
-          final imageFile = _vehicleImages[i];
-          final imageBytes = await imageFile.readAsBytes();
-          uploadTask = storageRef.putData(
-            imageBytes,
-            SettableMetadata(contentType: 'image/jpeg'),
-          );
-        } else {
-          // For mobile platforms
-          uploadTask = storageRef.putFile(
-            _vehicleImages[i],
-            SettableMetadata(contentType: 'image/jpeg'),
-          );
-        }
-
-        // Show upload progress
-        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-          final progress = snapshot.bytesTransferred / snapshot.totalBytes;
-          print(
-            'Upload progress for image $i: ${(progress * 100).toStringAsFixed(2)}%',
-          );
-        });
-
-        // Wait for upload to complete
-        await uploadTask;
-
-        // Get download URL
-        final downloadUrl = await storageRef.getDownloadURL();
-        imageUrls.add(downloadUrl);
-      }
+      final imageUrls = await StorageService.uploadImages(
+        _vehicleImages,
+        folder: 'vehicle_images',
+        filePrefix: 'vehicle',
+      );
 
       // Save vehicle data to Firestore
       final vehicleRef = await FirebaseFirestore.instance
@@ -279,7 +237,7 @@ class _VehicleRegistrationPageState extends State<VehicleRegistrationPage> {
 
       Navigator.pop(context);
     } catch (e) {
-      print('Error during vehicle registration: $e');
+      debugPrint('Error during vehicle registration: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),

@@ -3,14 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'vehicle_registration_page.dart';
-import 'edit_vehicle_page.dart';
-import 'login_page.dart';
-import 'insurance_request_page.dart';
-import 'insurance_policy_page.dart';
-import 'accident_report_page.dart';
-import 'theme/app_theme.dart';
-import 'widgets/car_card.dart';
+import 'package:car_insurance_app/features/vehicles/vehicle_registration_page.dart';
+import 'package:car_insurance_app/features/vehicles/edit_vehicle_page.dart';
+import 'package:car_insurance_app/features/auth/login_page.dart';
+import 'package:car_insurance_app/features/insurance/insurance_request_page.dart';
+import 'package:car_insurance_app/features/insurance/insurance_policy_page.dart';
+import 'package:car_insurance_app/features/accidents/accident_report_page.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
+import 'package:car_insurance_app/shared/widgets/car_card.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -165,12 +165,12 @@ class _HomePageState extends State<HomePage>
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       // Add debug prints
                       if (snapshot.hasError) {
-                        print('Error loading vehicles: ${snapshot.error}');
+                        debugPrint('Error loading vehicles: ${snapshot.error}');
                         return Center(child: Text('Error loading vehicles'));
                       }
                       
                       if (!snapshot.hasData) {
-                        print('No data available yet');
+                        debugPrint('No data available yet');
                         return Center(child: CircularProgressIndicator());
                       }
 

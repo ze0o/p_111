@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'theme/app_theme.dart';
-import 'services/notification_service.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
+import 'package:car_insurance_app/core/services/notification_service.dart';
 
 class AdminInsuranceManagementPage extends StatefulWidget {
   @override
@@ -92,7 +92,7 @@ class _AdminInsuranceManagementPageState
               .snapshots(),
 
       builder: (context, snapshot) {
-        print('Snapshot data: ${snapshot.data?.docs} ${status}');
+        debugPrint('Snapshot data: ${snapshot.data?.docs} ${status}');
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         }
@@ -136,7 +136,7 @@ class _AdminInsuranceManagementPageState
     }
 
     final filteredDocs = snapshot.data!.docs.toList();
-    print('Filtered docs: $filteredDocs');
+    debugPrint('Filtered docs: $filteredDocs');
     // snapshot.data!.docs.where((doc) {
     //   if (_searchQuery.isEmpty) return true;
 

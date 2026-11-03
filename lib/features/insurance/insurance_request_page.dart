@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'payment_page.dart';
-import 'theme/app_theme.dart';
+import 'package:car_insurance_app/features/insurance/payment_page.dart';
+import 'package:car_insurance_app/core/theme/app_theme.dart';
 
 class InsuranceRequestPage extends StatefulWidget {
   final String vehicleId;
@@ -71,7 +71,7 @@ class _InsuranceRequestPageState extends State<InsuranceRequestPage> {
         });
       }
     } catch (e) {
-      print('Error loading vehicle data: $e');
+      debugPrint('Error loading vehicle data: $e');
     }
   }
 
@@ -114,7 +114,7 @@ class _InsuranceRequestPageState extends State<InsuranceRequestPage> {
         }
       }
     } catch (e) {
-      print('Error checking existing request: $e');
+      debugPrint('Error checking existing request: $e');
     }
   }
 
